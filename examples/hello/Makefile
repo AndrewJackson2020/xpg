@@ -77,3 +77,7 @@ include $(PGXS)
 .PHONY: test
 test:
 	make installcheck
+
+.PHONY: test-core
+test-core:
+	$(pg_regress_installcheck) --dlpath=$(PG_REGRESS_TESTS)/lib --inputdir=$(PG_REGRESS_TESTS) --schedule=$(PG_REGRESS_TESTS)/parallel_schedule --dbname=regression

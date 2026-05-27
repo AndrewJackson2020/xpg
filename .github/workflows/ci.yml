@@ -101,6 +101,17 @@ jobs:
           # test for cassert enabled build
           xpg -v ${{ matrix.pg-version }} --cassert psql -c "DO \$\$ BEGIN ASSERT current_setting('debug_assertions') = 'on'; END \$\$;"
 
+          # test for pg core test
+          if [ "${{ matrix.pg-version }}" -ge 15 ]; then
+            xpg -v ${{ matrix.pg-version }} test-core
+          fi
+
+      - if: ${{ failure() }}
+        run: |
+          cd examples/hello
+          cat regression.out
+          cat regression.diffs
+
       - name: Upload to cachix
         run: |
           set -euo pipefail

@@ -21,7 +21,7 @@ let
     docs = "Develop native PostgreSQL extensions";
     args = [
       "ARG_POSITIONAL_SINGLE([operation], [Operation])"
-      "ARG_TYPE_GROUP_SET([OPERATION], [OPERATION], [operation], [build,test,coverage,psql,gdb,pgbench])"
+      "ARG_TYPE_GROUP_SET([OPERATION], [OPERATION], [operation], [build,test,test-core,coverage,psql,gdb,pgbench])"
       "ARG_OPTIONAL_SINGLE([version], [v], [PostgreSQL version], [17])"
       "ARG_OPTIONAL_SINGLE([options], [o], [Options for the database cluster],)"
       "ARG_OPTIONAL_SINGLE([init-options], [], [Options for the initialization of pgbench],)"
@@ -67,6 +67,7 @@ let
       else
         export PATH=${ourPg.postgresql_18}/bin:"$PATH"
       fi
+      export PG_REGRESS_TESTS=${ourPg.postgresql_18.regress}
       _ext_paths=${buildExtPaths (extensionsFor "18")}
       ;;
     17)
@@ -75,6 +76,7 @@ let
       else
         export PATH=${ourPg.postgresql_17}/bin:"$PATH"
       fi
+      export PG_REGRESS_TESTS=${ourPg.postgresql_17.regress}
       _ext_paths=${buildExtPaths (extensionsFor "17")}
       ;;
     16)
@@ -83,6 +85,7 @@ let
       else
         export PATH=${ourPg.postgresql_16}/bin:"$PATH"
       fi
+      export PG_REGRESS_TESTS=${ourPg.postgresql_16.regress}
       _ext_paths=${buildExtPaths (extensionsFor "16")}
       ;;
     15)
@@ -91,6 +94,7 @@ let
       else
         export PATH=${ourPg.postgresql_15}/bin:"$PATH"
       fi
+      export PG_REGRESS_TESTS=${ourPg.postgresql_15.regress}
       _ext_paths=${buildExtPaths (extensionsFor "15")}
       ;;
     14)
@@ -239,6 +243,10 @@ let
   case "$_arg_operation" in
     build)
       # do nothing here as the build already ran
+      ;;
+
+    test-core)
+      make test-core
       ;;
 
     test)

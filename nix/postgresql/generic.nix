@@ -17,7 +17,7 @@ let
       , self, newScope, buildEnv
 
       # source specification
-      , version, hash, muslPatches ? {}
+      , version, hash, muslPatches ? {}, extraPatches ? [], extraPostPatch ? ""
 
       # for tests
       , testers, nixosTests
@@ -57,7 +57,7 @@ let
       inherit hash;
     };
 
-    outputs = [ "out" "lib" "doc" "man" ];
+    outputs = [ "out" "lib" "doc" "man" "regress" ];
     setOutputFlags = false; # $out retains configureFlags :-/
 
     buildInputs = [
@@ -125,28 +125,13 @@ let
         locale = "${if stdenv.isDarwin then darwin.adv_cmds else lib.getBin stdenv.cc.libc}/bin/locale";
       })
 
-    ] ++ lib.optionals stdenv'.hostPlatform.isMusl (
+    ] ++ extraPatches
+      ++ lib.optionals stdenv'.hostPlatform.isMusl (
       # Using fetchurl instead of fetchpatch on purpose: https://github.com/NixOS/nixpkgs/issues/240141
       map fetchurl (lib.attrValues muslPatches)
     ) ++ lib.optionals stdenv'.isLinux  [
       (if atLeast "13" then ./patches/socketdir-in-run-13+.patch else ./patches/socketdir-in-run.patch)
-    ] ++ (
-      if atLeast "18"
-      then []
-      else if atLeast "17"
-      then [./patches/17-add-extension_control_path-for.patch]
-      else if atLeast "16"
-      then [./patches/16-add-extension_control_path-for.patch]
-      else if atLeast "15"
-      then [./patches/15-add-extension_control_path-for.patch]
-      else if atLeast "14"
-      then [./patches/14-add-extension_control_path-for.patch]
-      else if atLeast "13"
-      then [./patches/13-add-extension_control_path-for.patch]
-      else if atLeast "12"
-      then [./patches/12-add-extension_control_path-for.patch]
-      else []
-      );
+    ];
 
     installTargets = [ "install-world" ];
 
@@ -158,10 +143,33 @@ let
         substituteInPlace src/backend/jit/jit.c --replace pkglib_path \"$out/lib\"
         substituteInPlace src/backend/jit/llvm/llvmjit.c --replace pkglib_path \"$out/lib\"
         substituteInPlace src/backend/jit/llvm/llvmjit_inline.cpp --replace pkglib_path \"$out/lib\"
-    '';
+    '' + extraPostPatch;
 
-    postInstall =
-      ''
+    postInstall = ''
+        # install-world does not install this test helper, but we need it for the core regress tests
+        if [ -e "src/test/regress/regress${stdenv'.hostPlatform.extensions.sharedLibrary}" ]; then
+          install -Dm755 \
+            "src/test/regress/regress${stdenv'.hostPlatform.extensions.sharedLibrary}" \
+            "$regress/lib/regress${stdenv'.hostPlatform.extensions.sharedLibrary}"
+        fi
+
+        # install-world also skips these SPI regression helpers, but some regress suites load them directly
+        for spi_helper in autoinc refint; do
+          if [ -e "contrib/spi/$spi_helper${stdenv'.hostPlatform.extensions.sharedLibrary}" ]; then
+            install -Dm755 \
+              "contrib/spi/$spi_helper${stdenv'.hostPlatform.extensions.sharedLibrary}" \
+              "$regress/lib/$spi_helper${stdenv'.hostPlatform.extensions.sharedLibrary}"
+          fi
+        done
+
+        install -d "$regress"
+        cp -r \
+          src/test/regress/data \
+          src/test/regress/expected \
+          src/test/regress/sql \
+          "$regress/"
+        install -Dm644 src/test/regress/parallel_schedule "$regress/parallel_schedule"
+
         moveToOutput "lib/pgxs" "$out" # looks strange, but not deleting it
         moveToOutput "lib/libpgcommon*.a" "$out"
         moveToOutput "lib/libpgport*.a" "$out"

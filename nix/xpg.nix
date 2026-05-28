@@ -144,12 +144,20 @@ let
 
   # commands that require the build ready
   case "$_arg_operation" in
+    test)
+      make build TEST=1 1>&2
+      ;;
+
     coverage)
       if [ ! -f "$COVERAGE_INFO" ]; then
         rm -rf "$BUILD_DIR"/*.o "$BUILD_DIR"/*.so
       fi
 
       make build COVERAGE=1 1>&2
+      ;;
+
+    test-core)
+      make build TEST_CORE=1 1>&2
       ;;
 
     gdb)

@@ -153,7 +153,7 @@ let
         rm -rf "$BUILD_DIR"/*.o "$BUILD_DIR"/*.so
       fi
 
-      make build COVERAGE=1 1>&2
+      make build TEST=1 COVERAGE=1 1>&2
       ;;
 
     test-core)

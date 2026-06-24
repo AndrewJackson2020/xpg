@@ -22,6 +22,8 @@ in
   xpg-core = pkgs.callPackage ./xpg-core.nix {
     inherit ourPg checked-shell-script;
   };
+  postgresql_19 = ourPg.postgresql_19;
+  postgresql_19_cassert = ourPg.postgresql_19_cassert;
   postgresql_18 = ourPg.postgresql_18;
   postgresql_18_cassert = ourPg.postgresql_18_cassert;
   postgresql_17 = ourPg.postgresql_17;

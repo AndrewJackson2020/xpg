@@ -27,7 +27,7 @@ let
       "ARG_OPTIONAL_SINGLE([init-options], [], [Options for the initialization of pgbench],)"
       "ARG_OPTIONAL_BOOLEAN([cassert], [], [Use the cassert-enabled PostgreSQL build])"
       "ARG_OPTIONAL_SINGLE([commit], [], [Run the command in a new git worktree and check out <commit>])"
-      "ARG_TYPE_GROUP_SET([VERSION], [VERSION], [version], [18,17,16,15,14,13,12])"
+      "ARG_TYPE_GROUP_SET([VERSION], [VERSION], [version], [19,18,17,16,15,14,13,12])"
       "ARG_LEFTOVERS([psql arguments])"
     ];
   }
@@ -61,6 +61,15 @@ let
   fi
 
   case "$_arg_version" in
+    19)
+      if [ "$_arg_cassert" = on ]; then
+        export PATH=${ourPg.postgresql_19_cassert}/bin:"$PATH"
+      else
+        export PATH=${ourPg.postgresql_19}/bin:"$PATH"
+      fi
+      export PG_REGRESS_TESTS=${ourPg.postgresql_19.regress}
+      _ext_paths=${buildExtPaths (extensionsFor "19")}
+      ;;
     18)
       if [ "$_arg_cassert" = on ]; then
         export PATH=${ourPg.postgresql_18_cassert}/bin:"$PATH"
@@ -124,7 +133,8 @@ let
   esac
 
   # TODO remove the need for this conditional once we apply the official extension_control_path patch from pg 18
-  if [ "$_arg_version" == "18" ]; then
+  # PG 18+ includes upstream support for extension_control_path without our backport patch layout.
+  if [ "$_arg_version" -ge 18 ]; then
     EXT_CONTROL_PATHS="$_ext_paths"
     EXT_DYNLIB_PATHS="$_ext_paths"
   else

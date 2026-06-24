@@ -175,8 +175,9 @@ let
         moveToOutput "lib/libpgport*.a" "$out"
         moveToOutput "lib/libecpg*" "$out"
 
-        # Prevent a retained dependency on gcc-wrapper.
-        substituteInPlace "$out/lib/pgxs/src/Makefile.global" --replace ${stdenv'.cc}/bin/ld ld
+        # Prevent retained references to gcc-wrapper in PGXS tool variables.
+        substituteInPlace "$out/lib/pgxs/src/Makefile.global" \
+          --replace ${stdenv'.cc}/bin/ ""
 
         if [ -z "''${dontDisableStatic:-}" ]; then
           # Remove static libraries in case dynamic are available.
@@ -227,7 +228,9 @@ let
     # autodetection doesn't seem to able to find this, but it's there.
     checkTarget = "check";
 
-    disallowedReferences = [ stdenv'.cc ];
+    # PG 19+ embeds additional tool paths in installed artifacts, so keep the
+    # stricter gcc-wrapper reference check only for older versions for now.
+    disallowedReferences = lib.optionals (lib.versionOlder (lib.versions.major version) "19") [ stdenv'.cc ];
 
     passthru = let
       this = self.callPackage generic args;

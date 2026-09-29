@@ -31,14 +31,12 @@ let
       , pythonSupport ? false
       , python3
 
-      # detection of crypt fails when using llvm stdenv, so we add it manually
-      # for <13 (where it got removed: https://github.com/postgres/postgres/commit/c45643d618e35ec2fe91438df15abd4f3c0d85ca)
       , libxcrypt
     } @args:
   let
     atLeast = lib.versionAtLeast version;
     olderThan = lib.versionOlder version;
-    lz4Enabled = atLeast "14";
+    lz4Enabled = true;
     zstdEnabled = atLeast "15";
 
     systemdSupport' = if enableSystemd == null then systemdSupport else (lib.warn "postgresql: argument enableSystemd is deprecated, please use systemdSupport instead." enableSystemd);
@@ -67,7 +65,6 @@ let
       libxml2
       icu
     ]
-      ++ lib.optionals (olderThan "13") [ libxcrypt ]
       ++ lib.optionals jitSupport [ llvmPackages.llvm ]
       ++ lib.optionals lz4Enabled [ lz4 ]
       ++ lib.optionals zstdEnabled [ zstd ]
@@ -93,7 +90,6 @@ let
 
     # Makes cross-compiling work when xml2-config can't be executed on the host.
     # Fixed upstream in https://github.com/postgres/postgres/commit/0bc8cebdb889368abdf224aeac8bc197fe4c9ae6
-    env.NIX_CFLAGS_COMPILE = lib.optionalString (olderThan "13") "-I${libxml2.dev}/include/libxml2";
 
     configureFlags = [
       "--with-openssl"
@@ -129,9 +125,7 @@ let
       ++ lib.optionals stdenv'.hostPlatform.isMusl (
       # Using fetchurl instead of fetchpatch on purpose: https://github.com/NixOS/nixpkgs/issues/240141
       map fetchurl (lib.attrValues muslPatches)
-    ) ++ lib.optionals stdenv'.isLinux  [
-      (if atLeast "13" then ./patches/socketdir-in-run-13+.patch else ./patches/socketdir-in-run.patch)
-    ];
+    );
 
     installTargets = [ "install-world" ];
 
@@ -305,9 +299,7 @@ let
       # resulting LLVM IR isn't platform-independent this doesn't give you much.
       # In fact, I tried to test the result in a VM-test, but as soon as JIT was used to optimize
       # a query, postgres would coredump with `Illegal instruction`.
-      broken = (jitSupport && stdenv.hostPlatform != stdenv.buildPlatform)
-        # Allmost all tests fail FATAL errors for v12 and v13
-        || (jitSupport && stdenv.hostPlatform.isMusl && olderThan "14");
+      broken = (jitSupport && stdenv.hostPlatform != stdenv.buildPlatform);
     };
   });
 

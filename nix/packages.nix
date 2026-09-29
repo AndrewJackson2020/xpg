@@ -41,8 +41,4 @@ in
   postgresql_15_cassert = ourPg.postgresql_15_cassert;
   postgresql_14 = ourPg.postgresql_14;
   postgresql_14_cassert = ourPg.postgresql_14_cassert;
-  postgresql_13 = ourPg.postgresql_13;
-  postgresql_13_cassert = ourPg.postgresql_13_cassert;
-  postgresql_12 = ourPg.postgresql_12;
-  postgresql_12_cassert = ourPg.postgresql_12_cassert;
 }

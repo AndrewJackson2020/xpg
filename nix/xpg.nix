@@ -7,7 +7,7 @@
   # runtime dependency of the resulting derivation, so narrowing this list
   # (see `forVersions` in nix/packages.nix) shrinks the closure to just the
   # versions needed.
-  versions ? ["19" "18" "17" "16" "15" "14" "13" "12"],
+  versions ? ["19" "18" "17" "16" "15" "14" ],
   # Whether to include the cassert-enabled PostgreSQL builds (and the
   # `--cassert` flag's ability to select them) in this build's closure.
   # Disabling this halves the PostgreSQL closure for consumers (e.g. CI) that

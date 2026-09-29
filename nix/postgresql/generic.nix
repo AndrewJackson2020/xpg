@@ -93,7 +93,7 @@ let
 
     # Makes cross-compiling work when xml2-config can't be executed on the host.
     # Fixed upstream in https://github.com/postgres/postgres/commit/0bc8cebdb889368abdf224aeac8bc197fe4c9ae6
-    env.NIX_CFLAGS_COMPILE = lib.optionalString (olderThan "13") "-I${libxml2.dev}/include/libxml2";
+    env.NIX_CFLAGS_COMPILE = "-std=c11 " + lib.optionalString (olderThan "13") "-I${libxml2.dev}/include/libxml2" + (if stdenv.isDarwin then " -Wno-error=implicit-function-declaration" else "");
 
     configureFlags = [
       "--with-openssl"

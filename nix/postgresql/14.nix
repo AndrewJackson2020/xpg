@@ -1,6 +1,6 @@
 import ./generic.nix {
-  version = "14.12";
-  hash = "sha256-YRjQj53cwb2Dzyt8x007WDvc7C835iRaisADuPqoCSM=";
+  version = "14.24";
+  hash = "sha256-p/p+09VYFyNV9RQGCXp71Pa0c76A8xHvfNqWvzg9iJc=";
   extraPatches = [ ./patches/14-add-extension_control_path-for.patch ];
   muslPatches = {
     disable-test-collate-icu-utf8 = {

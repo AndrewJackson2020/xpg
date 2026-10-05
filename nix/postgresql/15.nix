@@ -1,6 +1,6 @@
 import ./generic.nix {
-  version = "15.7";
-  hash = "sha256-pG/klIWrY4Xjnau7tlT10wSSBvds1pXiJCaHKVIJmPc=";
+  version = "15.19";
+  hash = "sha256-4aZKh6RrgluIwILkUYFhpHqrU8RWlJZPi6HfKPeFn4k=";
   extraPatches = [
     ./patches/15-add-extension_control_path-for.patch
   ];

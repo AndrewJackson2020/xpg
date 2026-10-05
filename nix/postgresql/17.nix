@@ -1,6 +1,6 @@
 import ./generic.nix {
-  version = "17.0";
-  hash = "sha256-fidhMcD91rYliNutmzuyS4w0mNUAkyjbpZrxboGRCd4=";
+  version = "17.11";
+  hash = "sha256-3Sfys8Wec+0UqjMkkBJCv2mgMqY0eAXydOYmAyLUKXk=";
   extraPatches = [ ./patches/17-add-extension_control_path-for.patch ];
   # this test is flaky and is not important for extensions that use hooks
   extraPostPatch = ''

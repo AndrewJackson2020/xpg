@@ -1,6 +1,6 @@
 import ./generic.nix {
-  version = "18.0";
-  hash = "sha256-DVuQOx5f42G8p6qVB1GZM3c+s0JmsTV8TneA/e5tYHg=";
+  version = "18.6";
+  hash = "sha256-VVYQwk1T5DFtpbfT/CXCedloVtXg4j7jCMMoxfqIHZ8=";
   # this test is flaky and is not important for extensions that use hooks
   extraPostPatch = ''
     sed -i \

@@ -176,3 +176,10 @@ jobs:
       - name: Enforce conventional commits
         uses: webiny/action-conventional-commits@7f91b1595ca1951cdb671ddc9f07a49081ec5b69 # v1.4.2
 
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+
+      - name: lint nix code
+        run: |
+          set -euo pipefail
+          nix fmt -- --ci

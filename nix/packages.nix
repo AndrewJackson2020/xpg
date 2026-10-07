@@ -1,19 +1,31 @@
 { pkgs }:
 let
   ourPg = pkgs.callPackage ./postgresql {
-    inherit (pkgs) lib stdenv fetchurl makeWrapper callPackage;
+    inherit (pkgs)
+      lib
+      stdenv
+      fetchurl
+      makeWrapper
+      callPackage
+      ;
   };
   checked-shell-script = pkgs.callPackage ./checked-shell-script.nix {
     inherit (pkgs) lib;
   };
-  mkXpg = args: pkgs.callPackage ./xpg.nix ({
-    inherit ourPg checked-shell-script;
-  } // args);
+  mkXpg =
+    args:
+    pkgs.callPackage ./xpg.nix (
+      {
+        inherit ourPg checked-shell-script;
+      }
+      // args
+    );
   xpg =
     let
       drv = mkXpg { };
     in
-    drv // {
+    drv
+    // {
       withExtensions = attrs: mkXpg attrs;
       # variant of xpg that only supports the given pg versions, so consumers (like CI jobs
       # testing a single version) don't pull the closure of every pg version.

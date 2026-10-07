@@ -20,24 +20,37 @@ let
     postgresql_19 = ./19.nix;
   };
 
-  mkAttributes = { jitSupport, cassertSupport }:
-    self.lib.mapAttrs' (version: path:
+  mkAttributes =
+    { jitSupport, cassertSupport }:
+    self.lib.mapAttrs' (
+      version: path:
       let
-        suffixes =
-          self.lib.optional cassertSupport "cassert"
-          ++ self.lib.optional jitSupport "jit";
-        attrName = version
-          + self.lib.optionalString (suffixes != [])
-            ("_" + self.lib.concatStringsSep "_" suffixes);
+        suffixes = self.lib.optional cassertSupport "cassert" ++ self.lib.optional jitSupport "jit";
+        attrName =
+          version + self.lib.optionalString (suffixes != [ ]) ("_" + self.lib.concatStringsSep "_" suffixes);
       in
-      self.lib.nameValuePair attrName (import path {
-        inherit jitSupport cassertSupport self;
-      })
+      self.lib.nameValuePair attrName (
+        import path {
+          inherit jitSupport cassertSupport self;
+        }
+      )
     ) versions;
 
 in
 # variations for combinations of JIT and cassert support
-(mkAttributes { jitSupport = false; cassertSupport = false; })
-// (mkAttributes { jitSupport = true;  cassertSupport = false; })
-// (mkAttributes { jitSupport = false; cassertSupport = true;  })
-// (mkAttributes { jitSupport = true;  cassertSupport = true;  })
+(mkAttributes {
+  jitSupport = false;
+  cassertSupport = false;
+})
+// (mkAttributes {
+  jitSupport = true;
+  cassertSupport = false;
+})
+// (mkAttributes {
+  jitSupport = false;
+  cassertSupport = true;
+})
+// (mkAttributes {
+  jitSupport = true;
+  cassertSupport = true;
+})

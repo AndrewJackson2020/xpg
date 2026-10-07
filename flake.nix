@@ -14,7 +14,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/26.05";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs =
+    { self, nixpkgs }:
     let
       systems = [
         "x86_64-linux"
@@ -25,7 +26,7 @@
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
     in
     {
-            formatter = forAllSystems (
+      formatter = forAllSystems (
         system:
         let
           pkgs = import nixpkgs { inherit system; };
@@ -34,16 +35,20 @@
         pkgs.nixfmt-tree
 
       );
-      packages = forAllSystems (system:
+      packages = forAllSystems (
+        system:
         let
           pkgs = import nixpkgs { inherit system; };
           xpgPkgs = import ./nix/packages.nix { inherit pkgs; };
         in
-        xpgPkgs // {
+        xpgPkgs
+        // {
           default = xpgPkgs.xpg;
-        });
+        }
+      );
 
-      apps = forAllSystems (system:
+      apps = forAllSystems (
+        system:
         let
           pkgs = import nixpkgs { inherit system; };
           xpgPkgs = import ./nix/packages.nix { inherit pkgs; };
@@ -56,6 +61,7 @@
           default = mkApp "xpg" xpgPkgs.xpg;
           xpg = mkApp "xpg" xpgPkgs.xpg;
           xpg-core = mkApp "xpg-core" xpgPkgs.xpg-core;
-        });
+        }
+      );
     };
 }

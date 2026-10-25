@@ -103,6 +103,16 @@ jobs:
             nix run .#xpg${{ matrix.pg-version }} -- test-core
           fi
 
+      - name: Build postgres extension with ubsan error
+        run: |
+          cd examples/ubsan
+          xpg -v ${{ matrix.pg-version }} build
+
+      - name: Test postgres extension
+        run: |
+          cd examples/ubsan
+          xpg -- --cassert -v ${{ matrix.pg-version }} test 2>&1 |  grep 'SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior'
+
       - if: ${{ failure() }}
         run: |
           cd examples/hello

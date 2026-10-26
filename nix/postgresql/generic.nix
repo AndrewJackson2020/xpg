@@ -147,7 +147,10 @@ let
       # environment, and PostgreSQL links via $(CC) $(CFLAGS), so the sanitizer
       # runtime is linked too (NIX_CFLAGS_COMPILE alone would leave
       # __ubsan_handle_* undefined at link time).
-      env.CFLAGS = lib.optionalString sanitize "-fsanitize=undefined -fno-sanitize=function -fno-sanitize-recover=all -fno-omit-frame-pointer";
+      env.CFLAGS = 
+        ""
+        + lib.optionalString sanitize "-fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer "
+	+ lib.optionalString (sanitize && stdenv.isDarwin) "-fno-sanitize=function";
 
       # Makes cross-compiling work when xml2-config can't be executed on the host.
       # Fixed upstream in https://github.com/postgres/postgres/commit/0bc8cebdb889368abdf224aeac8bc197fe4c9ae6

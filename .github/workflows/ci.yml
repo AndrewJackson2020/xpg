@@ -113,6 +113,16 @@ jobs:
           cd examples/ubsan
           xpg --cassert -v ${{ matrix.pg-version }} test 2>&1 |  grep 'runtime error: division by zero'
 
+      - name: Build postgres extension with asan error
+        run: |
+          cd examples/asan
+          xpg --cassert -v ${{ matrix.pg-version }} build
+
+      - name: Test postgres extension
+        run: |
+          cd examples/asan
+          xpg --cassert -v ${{ matrix.pg-version }} test 2>&1 |  grep "runtime error: store to address .* with insufficient space for an object of type 'char'"
+
       - if: ${{ failure() }}
         run: |
           cd examples/hello

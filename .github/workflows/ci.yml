@@ -111,7 +111,7 @@ jobs:
       - name: Test postgres extension
         run: |
           cd examples/ubsan
-          xpg -- --cassert -v ${{ matrix.pg-version }} test 2>&1 |  grep 'SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior'
+          xpg -- --cassert -v ${{ matrix.pg-version }} test 2>&1 |  grep 'runtime error: division by zero'
 
       - if: ${{ failure() }}
         run: |

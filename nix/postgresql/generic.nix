@@ -149,7 +149,8 @@ let
       env.CFLAGS =
         ""
         + lib.optionalString cassertSupport "-fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer "
-        + lib.optionalString (cassertSupport && stdenv.isDarwin) "-fno-sanitize=function";
+        + lib.optionalString (cassertSupport && stdenv.isDarwin) "-fno-sanitize=function"
+	+ lib.optionalString (cassertSupport && stdenv'.isLinux) "-fsanitize=address";
 
       # Makes cross-compiling work when xml2-config can't be executed on the host.
       # Fixed upstream in https://github.com/postgres/postgres/commit/0bc8cebdb889368abdf224aeac8bc197fe4c9ae6

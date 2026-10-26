@@ -68,7 +68,6 @@ let
     }@args:
     let
       atLeast = lib.versionAtLeast version;
-      sanitize = cassertSupport && atLeast "17";
       olderThan = lib.versionOlder version;
       lz4Enabled = atLeast "14";
       zstdEnabled = atLeast "15";
@@ -149,8 +148,8 @@ let
       # __ubsan_handle_* undefined at link time).
       env.CFLAGS =
         ""
-        + lib.optionalString sanitize "-fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer "
-        + lib.optionalString (sanitize && stdenv.isDarwin) "-fno-sanitize=function";
+        + lib.optionalString cassertSupport "-fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer "
+        + lib.optionalString (cassertSupport && stdenv.isDarwin) "-fno-sanitize=function";
 
       # Makes cross-compiling work when xml2-config can't be executed on the host.
       # Fixed upstream in https://github.com/postgres/postgres/commit/0bc8cebdb889368abdf224aeac8bc197fe4c9ae6
@@ -306,7 +305,7 @@ let
       # Sanitizer builds are exempt: on darwin the clang wrapper bakes an LC_RPATH
       # to its resource-root (where the ubsan runtime lives) into every binary.
       disallowedReferences =
-        lib.optionals (lib.versionOlder (lib.versions.major version) "19" && !sanitize)
+        lib.optionals (lib.versionOlder (lib.versions.major version) "19" && !cassertSupport)
           [
             stdenv'.cc
           ];

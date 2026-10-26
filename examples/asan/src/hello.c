@@ -9,12 +9,9 @@ Datum hello(PG_FUNCTION_ARGS){
   StringInfoData buf;
   initStringInfo(&buf);
 
-  int *s = NULL;
-  s = malloc(1 * sizeof(int));
-  s[0] = 3;
-  s[1] = 3;
-  s[6] = 3;
-  printf("%d\n", *s);
+  char *buf2 = (char *)malloc(4);
+  buf2[5] = 'A'; // Writing past the 4-byte heap buffer
+  free(buf2);
 
   appendStringInfoString(&buf, "hello ");
   appendBinaryStringInfo(&buf, VARDATA_ANY(input), VARSIZE_ANY_EXHDR(input));

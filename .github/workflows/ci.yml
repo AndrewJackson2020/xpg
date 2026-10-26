@@ -106,12 +106,12 @@ jobs:
       - name: Build postgres extension with ubsan error
         run: |
           cd examples/ubsan
-          xpg -v ${{ matrix.pg-version }} build
+          xpg --cassert -v ${{ matrix.pg-version }} build
 
       - name: Test postgres extension
         run: |
           cd examples/ubsan
-          xpg -- --cassert -v ${{ matrix.pg-version }} test 2>&1 |  grep 'runtime error: division by zero'
+          xpg --cassert -v ${{ matrix.pg-version }} test 2>&1 |  grep 'runtime error: division by zero'
 
       - if: ${{ failure() }}
         run: |

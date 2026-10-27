@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-test-xpg-core:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,7 +55,7 @@ jobs:
           fi
 
   build-test-xpg:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     strategy:
       matrix:
         pg-version: ['12', '13', '14', '15', '16', '17', '18']
@@ -121,7 +121,7 @@ jobs:
           fi
 
   test-nix-expressions:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-8vcpu-ubuntu-2404
 
     steps:
       - uses: actions/checkout@v4
@@ -168,7 +168,7 @@ jobs:
           fi
 
   style:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

@@ -76,7 +76,7 @@ let
   xpg =
     checked-shell-script
       {
-        name = "xpg";
+        name = "xpg${defaultVersion}";
         docs = "Develop native PostgreSQL extensions";
         args = [
           "ARG_POSITIONAL_SINGLE([operation], [Operation])"

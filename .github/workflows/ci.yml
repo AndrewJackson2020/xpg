@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-test-xpg-core:
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,7 +55,7 @@ jobs:
           fi
 
   build-test-xpg:
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     strategy:
       matrix:
         pg-version: ['12', '13', '14', '15', '16', '17', '18']
@@ -74,36 +74,33 @@ jobs:
           name: nxpg
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
-      - name: Build xpg
-        run: nix-build -A xpg
-
-      - name: Install xpg and GCC
+      - name: Install GCC
         run: |
-          nix profile install .#xpg nixpkgs#gcc14
+          nix profile install nixpkgs#gcc14
           echo "$HOME/.nix-profile/bin" >> "$GITHUB_PATH"
 
       - name: Build postgres extension
         run: |
           cd examples/hello
-          xpg -v ${{ matrix.pg-version }} build
+          nix run .#xpg${{ matrix.pg-version }} -- build
 
       - name: Test postgres extension
         run: |
           cd examples/hello
-          xpg -v ${{ matrix.pg-version }} psql -v ON_ERROR_STOP=1 -c "SELECT true;"
-          xpg -v ${{ matrix.pg-version }} psql -v ON_ERROR_STOP=1 -c "SELECT true;"
-          xpg -v ${{ matrix.pg-version }} test
-          xpg -v ${{ matrix.pg-version }} pgbench -n -c 1 -T 1 -f bench/query.sql
+          nix run .#xpg${{ matrix.pg-version }} -- psql -v ON_ERROR_STOP=1 -c "SELECT true;"
+          nix run .#xpg${{ matrix.pg-version }} -- psql -v ON_ERROR_STOP=1 -c "SELECT true;"
+          nix run .#xpg${{ matrix.pg-version }} -- test
+          nix run .#xpg${{ matrix.pg-version }} -- pgbench -n -c 1 -T 1 -f bench/query.sql
 
           # test for options argument
-          xpg -v ${{ matrix.pg-version }} --options "-c work_mem=8MB" psql -c "DO \$\$ BEGIN ASSERT current_setting('work_mem') = '8MB'; END \$\$;"
+          nix run .#xpg${{ matrix.pg-version }} -- --options "-c work_mem=8MB" psql -c "DO \$\$ BEGIN ASSERT current_setting('work_mem') = '8MB'; END \$\$;"
 
           # test for cassert enabled build
-          xpg -v ${{ matrix.pg-version }} --cassert psql -c "DO \$\$ BEGIN ASSERT current_setting('debug_assertions') = 'on'; END \$\$;"
+          nix run .#xpg${{ matrix.pg-version }} -- --cassert psql -c "DO \$\$ BEGIN ASSERT current_setting('debug_assertions') = 'on'; END \$\$;"
 
           # test for pg core test
           if [ "${{ matrix.pg-version }}" -ge 15 ]; then
-            xpg -v ${{ matrix.pg-version }} test-core
+            nix run .#xpg${{ matrix.pg-version }} -- test-core
           fi
 
       - if: ${{ failure() }}
@@ -115,13 +112,13 @@ jobs:
       - name: Upload to cachix
         run: |
           set -euo pipefail
-          result=$(nix-build -A xpg)
+          result=$(nix-build -A xpg${{ matrix.pg-version }})
           if [ "${GITHUB_REF}" = 'refs/heads/master' ]; then
             echo "$result" | cachix push nxpg
           fi
 
   test-nix-expressions:
-    runs-on: blacksmith-8vcpu-ubuntu-2404
+    runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
       - uses: actions/checkout@v4
@@ -142,7 +139,7 @@ jobs:
         run: |
           nix-build tests
           cd examples/hello
-          ../../result/bin/xpg -v 15 psql -v ON_ERROR_STOP=1 -c "CREATE EXTENSION plpgsql_check;"
+          ../../result/bin/xpg17 psql -v ON_ERROR_STOP=1 -c "CREATE EXTENSION plpgsql_check;"
 
   build-on-macos:
     runs-on: blacksmith-6vcpu-macos-15

@@ -43,7 +43,16 @@
         in
         xpgPkgs
         // {
-          default = xpgPkgs.xpg;
+          default = xpgPkgs.xpg17;
+
+          xpg12 = xpgPkgs.xpg12;
+          xpg13 = xpgPkgs.xpg13;
+          xpg14 = xpgPkgs.xpg14;
+          xpg15 = xpgPkgs.xpg15;
+          xpg16 = xpgPkgs.xpg16;
+          xpg17 = xpgPkgs.xpg17;
+          xpg18 = xpgPkgs.xpg18;
+          xpg19 = xpgPkgs.xpg19;
         }
       );
 
@@ -58,8 +67,17 @@
           };
         in
         {
-          default = mkApp "xpg" xpgPkgs.xpg;
-          xpg = mkApp "xpg" xpgPkgs.xpg;
+          default = mkApp "xpg" xpgPkgs.xpg17;
+
+          xpg12 = mkApp "xpg12" xpgPkgs.xpg12;
+          xpg13 = mkApp "xpg13" xpgPkgs.xpg13;
+          xpg14 = mkApp "xpg14" xpgPkgs.xpg14;
+          xpg15 = mkApp "xpg15" xpgPkgs.xpg15;
+          xpg16 = mkApp "xpg16" xpgPkgs.xpg16;
+          xpg17 = mkApp "xpg17" xpgPkgs.xpg17;
+          xpg18 = mkApp "xpg18" xpgPkgs.xpg18;
+          xpg19 = mkApp "xpg19" xpgPkgs.xpg19;
+
           xpg-core = mkApp "xpg-core" xpgPkgs.xpg-core;
         }
       );

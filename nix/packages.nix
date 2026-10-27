@@ -37,7 +37,17 @@ let
     };
 in
 {
-  inherit xpg;
+  xpg = xpg;
+
+  xpg12 = xpg.forVersions { versions = [ "12" ]; };
+  xpg13 = xpg.forVersions { versions = [ "13" ]; };
+  xpg14 = xpg.forVersions { versions = [ "14" ]; };
+  xpg15 = xpg.forVersions { versions = [ "15" ]; };
+  xpg16 = xpg.forVersions { versions = [ "16" ]; };
+  xpg17 = xpg.forVersions { versions = [ "17" ]; };
+  xpg18 = xpg.forVersions { versions = [ "18" ]; };
+  xpg19 = xpg.forVersions { versions = [ "19" ]; };
+
   xpg-core = pkgs.callPackage ./xpg-core.nix {
     inherit ourPg checked-shell-script;
   };

@@ -1,8 +1,0 @@
-hello.control
-regression.*
-results/
-*.so
-*.o
-*.bc
-*.diffs
-sql/hello--*.sql

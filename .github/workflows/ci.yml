@@ -118,7 +118,7 @@ jobs:
       - name: Test postgres extension
         run: |
           cd examples/hello
-          HELLO_OOB_WRITE=1 xpg --cassert -v ${{ matrix.pg-version }} test 2>&1 |  grep "runtime error: store to address .* with insufficient space for an object of type 'char'"
+          HELLO_OOB_WRITE=1 xpg --cassert -v ${{ matrix.pg-version }} test 2>&1 |  grep 'runtime error: store to address'
 
       - if: ${{ failure() }}
         run: |

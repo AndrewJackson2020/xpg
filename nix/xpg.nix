@@ -47,6 +47,32 @@ let
   # keep 17 as the default version for backwards compatibility, unless it's not included
   defaultVersion = if builtins.elem "17" versions then "17" else builtins.head versions;
   # pg versions older than 15 don't have the regress output
+  versionCaseBranch2 = v: ''
+    ${v})
+      ${
+        if cassert then
+          ''
+            if [ "$_arg_cassert" = on ]; then
+              export BIN_DIR=${ourPg."postgresql_${v}_cassert"}/bin
+            else
+              export BIN_DIR=${ourPg."postgresql_${v}"}/bin
+            fi
+          ''
+        else
+          ''
+            if [ "$_arg_cassert" = on ]; then
+              echo 'This build of xpg was not built with cassert support.' >&2
+              exit 1
+            fi
+            export BIN_DIR=${ourPg."postgresql_${v}"}/bin
+          ''
+      }
+      ${lib.optionalString (lib.versionAtLeast v "15") "export PG_REGRESS_TESTS=${
+        ourPg."postgresql_${v}".regress
+      }"}
+      _ext_paths=${buildExtPaths (extensionsFor v)}
+      ;;
+  '';
   versionCaseBranch = v: ''
     ${v})
       ${
@@ -80,7 +106,7 @@ let
         docs = "Develop native PostgreSQL extensions";
         args = [
           "ARG_POSITIONAL_SINGLE([operation], [Operation])"
-          "ARG_TYPE_GROUP_SET([OPERATION], [OPERATION], [operation], [build,test,test-core,coverage,psql,gdb,pgbench])"
+          "ARG_TYPE_GROUP_SET([OPERATION], [OPERATION], [operation], [build,test,test-core,coverage,psql,gdb,pgbench,bin])"
           "ARG_OPTIONAL_SINGLE([version], [v], [PostgreSQL version], [${defaultVersion}])"
           "ARG_OPTIONAL_SINGLE([options], [o], [Options for the database cluster],)"
           "ARG_OPTIONAL_SINGLE([init-options], [], [Options for the initialization of pgbench],)"
@@ -140,8 +166,13 @@ let
             echo 'The background worker is not started. First you have to run "xpg psql".'
             exit 1
         fi
-
-        COVERAGE_INFO=$BUILD_DIR/coverage.info
+        if [ "$_arg_operation" == bin ]; then
+	      case "$_arg_version" in
+	          ${builtins.concatStringsSep "" (map versionCaseBranch2 versions)}
+	      esac
+	    echo "$BIN_DIR"
+	    exit 0
+	fi
 
         # commands that require the build ready
         case "$_arg_operation" in

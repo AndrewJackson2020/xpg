@@ -1,12 +1,6 @@
 #include "pg_prelude.h"
 #include <pthread.h>
  
-int Global;
-
-void *Thread1(void *x) {
-  Global = 42;
-  return x;
-}
 
 
 
@@ -18,6 +12,13 @@ Datum hello(PG_FUNCTION_ARGS){
 
   StringInfoData buf;
   initStringInfo(&buf);
+
+  int Global;
+  
+  void *Thread1(void *x) {
+    Global = 42;
+    return x;
+  }
 
   // ASAN should flag this
   if (getenv("HELLO_OOB_WRITE")) {
@@ -38,6 +39,8 @@ Datum hello(PG_FUNCTION_ARGS){
     pthread_create(&t, NULL, Thread1, NULL);
     Global = 43;
     pthread_join(t, NULL);
+    printf("%d\n", Global);
+    printf("%d\n", *((int *)Thread1(&Global)));
   }
 
   appendStringInfoString(&buf, "hello ");

@@ -1,4 +1,14 @@
 #include "pg_prelude.h"
+#include <pthread.h>
+ 
+int Global;
+
+void *Thread1(void *x) {
+  Global = 42;
+  return x;
+}
+
+
 
 PG_MODULE_MAGIC;
 
@@ -20,6 +30,14 @@ Datum hello(PG_FUNCTION_ARGS){
   if (getenv("HELLO_NULL_PTR_DEREF")) {
     int *i = NULL;
     printf("%d\n", *i);
+  }
+
+  // TSAN should flag this
+  if (getenv("HELLO_THREAD_DATA_RACE")) {
+    pthread_t t;
+    pthread_create(&t, NULL, Thread1, NULL);
+    Global = 43;
+    pthread_join(t, NULL);
   }
 
   appendStringInfoString(&buf, "hello ");
